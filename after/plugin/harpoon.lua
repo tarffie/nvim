@@ -4,7 +4,9 @@ local harpoon = require("harpoon")
 harpoon:setup()
 -- REQUIRED
 
-vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+-- add to harpoon project stuff
+vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end) 
+-- open fuzzy finder for harpooned projects
 vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
 
 vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
