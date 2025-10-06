@@ -4,27 +4,53 @@ lsp.on_attach(function(client, bufnr)
 end)
 lsp.preset('recommended')
 
-require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = { 'rust_analyzer', 'lua_ls', 'clangd', 'eslint', 'jdtls', 'phpactor', 'ocamllsp' },
-  handlers = {
-    function(server_name)
-      require('lspconfig')[server_name].setup({
-        intelephense = function()
-          require('lspconfig').intelephense.setup({
-            root_dir = function()
-              return vim.loop.cwd()
-            end,
-          })
-          require('lspconfig').ocamllsp.setup({
-            on_attach = on_attach,
-          })
-        end,
-      })
-    end,
-  }
+-- Get the lspconfig module directly
+local lspconfig = require('lspconfig')
+
+-- Configure lua_ls using lsp-zero's method
+lsp.configure('lua_ls', {
+  settings = {
+    Lua = {
+      runtime = {
+        version = 'LuaJIT',
+      },
+      diagnostics = {
+        globals = { 'vim' },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = {
+        enable = false,
+      },
+    },
+  },
 })
 
+local clangd_path = "/usr/local/bin/clangd20"  
+
+-- Configure clangd using lsp-zero's method
+lsp.configure('clangd', {
+  cmd = {
+    clangd_path,
+    "--background-index",
+    "--header-insertion=never",
+    "--clang-tidy",
+    "--offset-encoding=utf-16",  -- Important for Neovim compatibility
+  },
+  filetypes = {"c", "cpp", "objc", "objcpp"},
+  root_dir = function(fname)
+    return lspconfig.util.root_pattern(
+      'compile_commands.json',
+      'compile_flags.txt',
+      '.git'
+    )(fname) or vim.fn.getcwd()
+  end,
+  single_file_support = true,
+})
+
+-- Your cmp configuration (this part was correct)
 local cmp = require('cmp')
 local cmp_select = { behavior = cmp.SelectBehavior.Select }
 local cmp_mappings = lsp.defaults.cmp_mappings({
@@ -33,6 +59,9 @@ local cmp_mappings = lsp.defaults.cmp_mappings({
   ['<C-y>'] = cmp.mapping.confirm({ select = true }),
   ['<C-Space>'] = cmp.mapping.complete(),
 })
+
+-- Your keymaps configuration (this part was correct but redundant)
+-- Note: lsp.default_keymaps() already sets most of these, so you might not need this
 lsp.on_attach(function(client, bufnr)
   local opts = { buffer = bufnr, remap = false }
 
@@ -47,17 +76,6 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
   vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end)
-lsp.configure('lua-language-server', {
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
-    }
-  }
-})
-
-
 
 lsp.set_preferences({
   suggest_lsp_servers = false,
@@ -68,6 +86,7 @@ lsp.set_preferences({
     info = 'I'
   }
 })
+
 vim.diagnostic.config({
   virtual_text = true,
   severity_sort = true,
@@ -79,4 +98,5 @@ vim.diagnostic.config({
     prefix = '',
   },
 })
+
 lsp.setup()
