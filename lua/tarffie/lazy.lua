@@ -20,6 +20,9 @@ require("lazy").setup({
     "bluz71/vim-moonfly-colors", name = "moonfly", lazy = false, priority = 1000,
   },
   {
+    "wadackel/vim-dogrun", name ="vim-dogrun", lazy = false, priority = 1000,
+  },
+  {
     'nvim-telescope/telescope.nvim',
     tag = '0.1.6',
     dependencies = { 'nvim-lua/plenary.nvim' }

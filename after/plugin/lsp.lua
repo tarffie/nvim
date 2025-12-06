@@ -1,14 +1,32 @@
 local lsp = require('lsp-zero')
-lsp.on_attach(function(client, bufnr)
+lsp.on_attach(function(bufnr)
   lsp.default_keymaps({ buffer = bufnr })
 end)
 lsp.preset('recommended')
 
+local osname = GetOS()
+
+local clangd_path
+local lua_lsp
+
+local user = os.getenv("$USER")
+
+if osname == "Linux" then
+  lua_lsp = "lua-language-server"
+elseif osname == "BSD" then
+  clangd_path = "/usr/local/bin/clangd20"
+  lua_lsp = "/home" .. user .. "/.local/bin/lua-language-server"
+else
+  error("TODO: Implement clangd for Mac", 1)
+end
+
 -- Get the lspconfig module directly
-local lspconfig = require('lspconfig')
+local lspconfig = vim.lsp.config
 
 -- Configure lua_ls using lsp-zero's method
-lsp.configure('lua_ls', {
+
+lspconfig('lua_ls', {
+  cmd = { lua_lsp },
   settings = {
     Lua = {
       runtime = {
@@ -28,27 +46,26 @@ lsp.configure('lua_ls', {
   },
 })
 
-local clangd_path = "/usr/local/bin/clangd20"  
-
--- Configure clangd using lsp-zero's method
-lsp.configure('clangd', {
-  cmd = {
-    clangd_path,
-    "--background-index",
-    "--header-insertion=never",
-    "--clang-tidy",
-    "--offset-encoding=utf-16",  -- Important for Neovim compatibility
-  },
-  filetypes = {"c", "cpp", "objc", "objcpp"},
-  root_dir = function(fname)
-    return lspconfig.util.root_pattern(
-      'compile_commands.json',
-      'compile_flags.txt',
-      '.git'
-    )(fname) or vim.fn.getcwd()
-  end,
-  single_file_support = true,
-})
+if osname == "BSD" then
+  lsp.configure('clangd', {
+    cmd = {
+      clangd_path,
+      "--background-index",
+      "--header-insertion=never",
+      "--clang-tidy",
+      "--offset-encoding=utf-16",
+    },
+    filetypes = { "c", "cpp", "objc", "objcpp" },
+    root_dir = function(fname)
+      return lsp.configure.util.root_pattern(
+        'compile_commands.json',
+        'compile_flags.txt',
+        '.git'
+      )(fname) or vim.fn.getcwd()
+    end,
+    single_file_support = true,
+  })
+end
 
 -- Your cmp configuration (this part was correct)
 local cmp = require('cmp')
@@ -92,7 +109,7 @@ vim.diagnostic.config({
   severity_sort = true,
   float = {
     style = 'minimal',
-    border = 'square',
+    border = 'rounded',
     source = true,
     header = '',
     prefix = '',
