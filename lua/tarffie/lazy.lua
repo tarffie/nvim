@@ -6,7 +6,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
+      { out,                            "WarningMsg" },
       { "\nPress any key to exit..." },
     }, true, {})
     vim.fn.getchar()
@@ -20,7 +20,7 @@ require("lazy").setup({
     "bluz71/vim-moonfly-colors", name = "moonfly", lazy = false, priority = 1000,
   },
   {
-    "wadackel/vim-dogrun", name ="vim-dogrun", lazy = false, priority = 1000,
+    "wadackel/vim-dogrun", name = "vim-dogrun", lazy = false, priority = 1000,
   },
   {
     'nvim-telescope/telescope.nvim',
@@ -43,7 +43,7 @@ require("lazy").setup({
     "tpope/vim-fugitive", branch = "master",
   },
   { 'folke/tokyonight.nvim' },
-  { 'VonHeikemen/lsp-zero.nvim',        branch = 'v3.x' },
+  { 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
   { 'williamboman/mason.nvim' },
   {
     "mason-org/mason-lspconfig.nvim",
@@ -69,5 +69,9 @@ require("lazy").setup({
       "williamboman/mason.nvim",
       "nvimtools/none-ls.nvim",
     },
+  },
+  {
+    "nvim-telescope/telescope-file-browser.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
   },
 })

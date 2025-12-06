@@ -4,49 +4,18 @@ lsp.on_attach(function(bufnr)
 end)
 lsp.preset('recommended')
 
-local osname = GetOS()
-
-local clangd_path
-local lua_lsp
-
-local user = os.getenv("$USER")
-
-if osname == "Linux" then
-  lua_lsp = "lua-language-server"
-elseif osname == "BSD" then
-  clangd_path = "/usr/local/bin/clangd20"
-  lua_lsp = "/home" .. user .. "/.local/bin/lua-language-server"
-else
-  error("TODO: Implement clangd for Mac", 1)
-end
 
 -- Get the lspconfig module directly
 local lspconfig = vim.lsp.config
 
 -- Configure lua_ls using lsp-zero's method
 
-lspconfig('lua_ls', {
-  cmd = { lua_lsp },
-  settings = {
-    Lua = {
-      runtime = {
-        version = 'LuaJIT',
-      },
-      diagnostics = {
-        globals = { 'vim' },
-      },
-      workspace = {
-        library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false,
-      },
-      telemetry = {
-        enable = false,
-      },
-    },
-  },
-})
 
+local osname = GetOS()
 if osname == "BSD" then
+  local user = os.getenv("$USER")
+  local clangd_path = "/usr/local/bin/clangd20"
+  local lua_lsp = "/home" .. user .. "/.local/bin/lua-language-server"
   lsp.configure('clangd', {
     cmd = {
       clangd_path,
@@ -64,6 +33,27 @@ if osname == "BSD" then
       )(fname) or vim.fn.getcwd()
     end,
     single_file_support = true,
+  })
+
+  lspconfig('lua_ls', {
+    cmd = { lua_lsp },
+    settings = {
+      Lua = {
+        runtime = {
+          version = 'LuaJIT',
+        },
+        diagnostics = {
+          globals = { 'vim' },
+        },
+        workspace = {
+          library = vim.api.nvim_get_runtime_file("", true),
+          checkThirdParty = false,
+        },
+        telemetry = {
+          enable = false,
+        },
+      },
+    },
   })
 end
 
