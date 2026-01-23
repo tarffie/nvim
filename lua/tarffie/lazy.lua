@@ -20,6 +20,9 @@ require("lazy").setup({
     "bluz71/vim-moonfly-colors", name = "moonfly", lazy = false, priority = 1000,
   },
   {
+    "sainnhe/gruvbox-material", name = "gruvbox-material", lazy = false, priority = 1000,
+  },
+  {
     "wadackel/vim-dogrun", name = "vim-dogrun", lazy = false, priority = 1000,
   },
   {
@@ -73,5 +76,13 @@ require("lazy").setup({
   {
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+  },
+  -- Java
+  {
+    'nvim-java/nvim-java',
+    config = function()
+      require('java').setup()
+      vim.lsp.enable('jdtls')
+    end,
   },
 })
