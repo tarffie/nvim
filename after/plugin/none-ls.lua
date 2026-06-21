@@ -8,10 +8,8 @@ if not null_ls_ok then
   return
 end
 
-mason.setup()
-
-local mason_tool_installer_ok, mason_tool_installer = 
-  pcall(require, "mason-tool-installer")
+local mason_tool_installer_ok, mason_tool_installer =
+    pcall(require, "mason-tool-installer")
 
 if mason_tool_installer_ok then
   mason_tool_installer.setup({

@@ -27,11 +27,13 @@ require("lazy").setup({
   },
   {
     'nvim-telescope/telescope.nvim',
-    tag = '0.1.6',
+    branch = 'master',
     dependencies = { 'nvim-lua/plenary.nvim' }
   },
   {
-    "nvim-treesitter/nvim-treesitter", build = ":TSUpdate"
+    "nvim-treesitter/nvim-treesitter",
+    lazy = false,
+    build = ":TSUpdate",
   },
   {
     "ThePrimeagen/harpoon",
@@ -45,7 +47,12 @@ require("lazy").setup({
   {
     "tpope/vim-fugitive", branch = "master",
   },
-  { 'folke/tokyonight.nvim' },
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
   { 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
   { 'williamboman/mason.nvim' },
   {
@@ -77,12 +84,35 @@ require("lazy").setup({
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
   },
-  -- Java
   {
-    'nvim-java/nvim-java',
+    'lewis6991/gitsigns.nvim'
+  },
+  {
+    'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim',     -- OPTIONAL: for git status
+      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+    },
+    init = function() vim.g.barbar_auto_setup = false end,
+    opts = {
+      animation = true,
+      -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+      -- insert_at_start = true,
+      -- …etc.
+    },
+  },
+  {
+    "apyra/nvim-unity-sync",
+    lazy = false,
     config = function()
-      require('java').setup()
-      vim.lsp.enable('jdtls')
+      require("unity.plugin").setup()
     end,
+  },
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    config = function()
+      vim.cmd("colorscheme rose-pine")
+    end
   },
 })
