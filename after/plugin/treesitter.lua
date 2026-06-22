@@ -1,26 +1,61 @@
-require'nvim-treesitter.config'.setup {
-  -- A list of parser names, or "all" (the five listed parsers should always be installed)
-  -- ensure_installed = {},
-  ensure_installed = { "javascript", "typescript", "c", "lua", "vim", "vimdoc",
-  "query", "c_sharp" },
+vim.lsp.config('lua_ls', {
+  cmd = { 'lua-language-server' },
+  diagnostics = { globals = { 'vim' } },
+  workspace = { checkThirdParty = false },
+  telemetry = { enable = false },
+  filetypes = { 'lua' },
+  root_markers = { '.luarc.json', '.git' },
+  settings = { Lua = { diagnostics = { globals = { "vim" } } } }
+})
 
-  -- Install parsers synchronously (only applied to `ensure_installed`)
-  sync_install = false,
+vim.lsp.config("roslyn", {
+  settings = {
+    ["csharp|inlay_hints"] = {
+      csharp_enable_inlay_hints_for_implicit_object_creation = true,
+      csharp_enable_inlay_hints_for_implicit_variable_types = true
+    },
+    ["csharp|code_lens"] = {
+      dotnet_enable_references_code_lens = false
+    },
+    ["csharp|background_analysis"] = {
+      dotnet_analyzer_diagnostics_scope = "fullSolution"
+    },
+    ["csharp|completion"] = {
+      dotnet_provide_regex_completions = true,
+      dotnet_show_completion_items_from_unimported_namespaces = true,
+      dotnet_show_name_completion_suggestions = true
+    },
+    ["csharp|symbol_search"] = {
+      dotnet_search_reference_assemblies = true
+    },
+    ["csharp|formatting"] = {
+      dotnet_organize_imports_on_format = true
+    }
+  }
+})
 
-  -- Automatically install missing parsers when entering buffer
-  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = false,
+vim.lsp.config('ts_ls', {
+  settings = {
+    typescript = {
+      inlayHints = {
+        includeInlayParameterNameHints = 'all',
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true
+      }
+    },
+    javascript = {
+      inlayHints = {
+        includeInlayParameterNameHints = 'all',
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true
+      }
+    }
+  }
+})
 
-  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
-
-  highlight = {
-    enable = true,
-
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
-  },
-}
+vim.lsp.enable({
+  'lua_ls',
+  'roslyn',
+  'ts_ls',
+  'jsonls'
+})

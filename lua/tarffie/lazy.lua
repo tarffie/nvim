@@ -1,5 +1,6 @@
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
@@ -7,23 +8,33 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
       { out,                            "WarningMsg" },
-      { "\nPress any key to exit..." },
+      { "\nPress any key to exit..." }
     }, true, {})
     vim.fn.getchar()
     os.exit(1)
   end
 end
+
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   {
-    "bluz71/vim-moonfly-colors", name = "moonfly", lazy = false, priority = 1000,
+    "bluz71/vim-moonfly-colors",
+    name = "moonfly",
+    lazy = false,
+    priority = 1000
   },
   {
-    "sainnhe/gruvbox-material", name = "gruvbox-material", lazy = false, priority = 1000,
+    "sainnhe/gruvbox-material",
+    name = "gruvbox-material",
+    lazy = false,
+    priority = 1000
   },
   {
-    "wadackel/vim-dogrun", name = "vim-dogrun", lazy = false, priority = 1000,
+    "wadackel/vim-dogrun",
+    name = "vim-dogrun",
+    lazy = false,
+    priority = 1000
   },
   {
     'nvim-telescope/telescope.nvim',
@@ -33,7 +44,7 @@ require("lazy").setup({
   {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
-    build = ":TSUpdate",
+    build = ":TSUpdate"
   },
   {
     "ThePrimeagen/harpoon",
@@ -42,26 +53,27 @@ require("lazy").setup({
   },
   {
     "mbbill/undotree",
-    branch = "master",
+    branch = "master"
   },
   {
-    "tpope/vim-fugitive", branch = "master",
+    "tpope/vim-fugitive",
+    branch = "master"
   },
   {
     "folke/tokyonight.nvim",
     lazy = false,
     priority = 1000,
-    opts = {},
+    opts = {}
   },
-  { 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
+  { 'folke/tokyonight.nvim' },
   { 'williamboman/mason.nvim' },
   {
     "mason-org/mason-lspconfig.nvim",
     opts = {},
     dependencies = {
       { "mason-org/mason.nvim", opts = {} },
-      { "neovim/nvim-lspconfig" },
-    },
+      { "neovim/nvim-lspconfig" }
+    }
   },
   { 'hrsh7th/cmp-nvim-lsp' },
   { 'hrsh7th/nvim-cmp' },
@@ -77,36 +89,35 @@ require("lazy").setup({
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "williamboman/mason.nvim",
-      "nvimtools/none-ls.nvim",
-    },
+      "nvimtools/none-ls.nvim"
+    }
   },
   {
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
   },
   {
-    'lewis6991/gitsigns.nvim'
-  },
-  {
     'romgrk/barbar.nvim',
     dependencies = {
-      'lewis6991/gitsigns.nvim',     -- OPTIONAL: for git status
-      'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
+      'lewis6991/gitsigns.nvim',    -- OPTIONAL: for git status
+      'nvim-tree/nvim-web-devicons' -- OPTIONAL: for file icons
     },
-    init = function() vim.g.barbar_auto_setup = false end,
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
     opts = {
-      animation = true,
+      animation = true
       -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
       -- insert_at_start = true,
       -- …etc.
-    },
+    }
   },
   {
     "apyra/nvim-unity-sync",
     lazy = false,
     config = function()
       require("unity.plugin").setup()
-    end,
+    end
   },
   {
     "rose-pine/neovim",
@@ -115,4 +126,10 @@ require("lazy").setup({
       vim.cmd("colorscheme rose-pine")
     end
   },
+  {
+    "seblyng/roslyn.nvim",
+    ---@module 'roslyn.config'
+    ---@type RoslynNvimConfig
+    opts = {}
+  }
 })
