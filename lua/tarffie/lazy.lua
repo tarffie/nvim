@@ -89,12 +89,12 @@ require("lazy").setup({
     "nvim-telescope/telescope-file-browser.nvim",
     dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
   },
-  -- Java
   {
-    'nvim-java/nvim-java',
-    config = function()
-      require('java').setup()
-      vim.lsp.enable('jdtls')
-    end
+    "seblyng/roslyn.nvim",
+    ---@module 'roslyn.config'
+    ---@type RoslynNvimConfig
+    opts = {
+      -- your configuration comes here; leave empty for default settings
+    }
   }
 })

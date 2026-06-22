@@ -1,107 +1,64 @@
-local lsp = require('lsp-zero')
-lsp.on_attach(function(bufnr)
-  lsp.default_keymaps({ buffer = bufnr })
-end)
-lsp.preset('recommended')
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local bufnr = args.buf
+    local map = function(mode, lhs, rhs, desc)
+      vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+    end
 
-
--- Get the lspconfig module directly
-local lspconfig = vim.lsp.config
-
--- Configure lua_ls using lsp-zero's method
-
-
-local osname = GetOS()
-if osname == "BSD" then
-  local user = os.getenv("$USER")
-  local clangd_path = "/usr/local/bin/clangd20"
-  local lua_lsp = "/home" .. user .. "/.local/bin/lua-language-server"
-  lsp.configure('clangd', {
-    cmd = {
-      clangd_path,
-      "--background-index",
-      "--header-insertion=never",
-      "--clang-tidy",
-      "--offset-encoding=utf-16",
-    },
-    filetypes = { "c", "cpp", "objc", "objcpp" },
-    root_dir = function(fname)
-      return lsp.configure.util.root_pattern(
-        'compile_commands.json',
-        'compile_flags.txt',
-        '.git'
-      )(fname) or vim.fn.getcwd()
-    end,
-    single_file_support = true,
-  })
-
-  lspconfig('lua_ls', {
-    cmd = { lua_lsp },
-    settings = {
-      Lua = {
-        runtime = {
-          version = 'LuaJIT',
-        },
-        diagnostics = {
-          globals = { 'vim' },
-        },
-        workspace = {
-          library = vim.api.nvim_get_runtime_file("", true),
-          checkThirdParty = false,
-        },
-        telemetry = {
-          enable = false,
-        },
-      },
-    },
-  })
-end
-
--- Your cmp configuration (this part was correct)
-local cmp = require('cmp')
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = lsp.defaults.cmp_mappings({
-  ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-  ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-  ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-  ['<C-Space>'] = cmp.mapping.complete(),
-})
-
--- Your keymaps configuration (this part was correct but redundant)
--- Note: lsp.default_keymaps() already sets most of these, so you might not need this
-lsp.on_attach(function(client, bufnr)
-  local opts = { buffer = bufnr, remap = false }
-
-  vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-  vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-  vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-  vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-  vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-  vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
-  vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-  vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-end)
-
-lsp.set_preferences({
-  suggest_lsp_servers = false,
-  sign_icons = {
-    error = 'E',
-    warn = 'W',
-    hint = 'H',
-    info = 'I'
-  }
+    map('n', 'K', vim.lsp.buf.hover, 'LSP Hover')
+    map('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
+    map('n', 'gD', vim.lsp.buf.declaration, 'Go to declaration')
+    map('n', 'gi', vim.lsp.buf.implementation, 'Go to implementation')
+    map('n', 'gr', vim.lsp.buf.references, 'References')
+    map('n', '<leader>rn', vim.lsp.buf.rename, 'Rename symbol')
+    map({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, 'Code action')
+    map('n', '<leader>f', function()
+      vim.lsp.buf.format({ async = true })
+    end, 'Format buffer'
+    )
+    map("n", "<leader>vd", function()
+      vim.diagnostic.open_float()
+    end)
+  end
 })
 
 vim.diagnostic.config({
-  virtual_text = true,
   severity_sort = true,
+  update_in_insert = false,
   float = {
-    style = 'minimal',
     border = 'rounded',
-    source = true,
-    header = '',
-    prefix = '',
+    source = 'if_many'
   },
+  underline = true,
+  virtual_text = {
+    spacing = 2,
+    source = 'if_many',
+    prefix = '●'
+  },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = 'E',
+      [vim.diagnostic.severity.WARN] = 'W',
+      [vim.diagnostic.severity.INFO] = 'I',
+      [vim.diagnostic.severity.HINT] = 'H'
+    }
+  }
 })
 
-lsp.setup()
+vim.opt.completeopt = { "menuone", "noselect", "popup" }
+
+local servers = { "lua_ls", "ts_ls", "omnisharp", "jsonls" }
+
+for _, server in ipairs(servers) do
+  vim.lsp.config(server, {
+    on_attach = function(client, bufnr)
+      vim.lsp.completion.enable(true, client.id, bufnr, {
+        autotrigger = true,
+        convert = function(item)
+          return { abbr = item.label:gsub("%b()", "") }
+        end
+      })
+      vim.keymap.set("i", "<Tab>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
+    end
+  })
+end
